@@ -47,7 +47,7 @@
 <link href="./assets/css/nucleo-svg.css" rel="stylesheet" />
 
 <!-- Font Awesome Icons -->
-<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+<!--<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>-->
 
 <!-- Material Icons -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -182,12 +182,19 @@
                     </div>
                   </div>
                   <div class="d-flex mb-4">
-                    <input v-model="newName" class="form-control me-2" placeholder="New Name" />
-                    <button class="btn btn-success" @click="addName">Add Random Name</button>
+                    <input v-model="newName" class="card mb-4" placeholder="New Name" />
+                    <button class="btn btn-success" @click="handleAddRandomName">Add Random Name</button>
                   </div>
+                  <div id="data-form">
+                    <input type="number" id="polypCount" class="card mb-4" placeholder="Number of Polyps">
+                    <textarea id="comments" class="form-control" placeholder="Comments"></textarea>
+                    <button id="saveData" class="btn btn-primary mt-2">Save Data</button>
+                 </div>
+                 <div v-if="errorMessage" class="alert alert-danger mt-2">
+                  {{ errorMessage }}
+                  </div>
+                 
                   <div id="Next" class="btn btn-primary">Next</div>
-                  <input type="text" class="form-control mb-2" value="Name">
-                  <input type="textbox" class="form-control" value="Comments">
                 </div>
               </main>
 
@@ -310,6 +317,8 @@
 <script src="./assets/js/core/bootstrap.min.js" ></script>
 <script src="./assets/js/plugins/perfect-scrollbar.min.js" ></script>
 <script src="./assets/js/plugins/smooth-scrollbar.min.js" ></script>
+<script type="module" src="./assets/js/plugins/random-name-generator.js"></script>
+<script type="module" src="/assets/js/plugins/submission-handler.js"></script>
 
 <script>
   var win = navigator.platform.indexOf('Win') > -1;
