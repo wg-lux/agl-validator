@@ -37,6 +37,53 @@
   
 </title>
 
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      names: [],
+      droppedNames: [],
+      newName: '',
+      gender: '',
+      errorMessage: ''  // Reactive property for error messages
+    },
+    methods: {
+      handleAddRandomName() {
+        // Check if gender is selected
+        const selectedGender = document.querySelector('input[name="gender"]:checked');
+        if (!selectedGender) {
+          this.errorMessage = 'Please specify the gender before adding a random name.';
+          return;
+        }
+        
+        this.errorMessage = ''; // Clear any existing error message
+        
+        // Proceed with adding a random name
+        const randomName = this.generateRandomName();
+        this.names.push({ label: randomName, imageUrl: 'path_to_image' });
+      },
+      generateRandomName() {
+        const namePool = ['Name1', 'Name2', 'Name3']; // Example random names
+        return namePool[Math.floor(Math.random() * namePool.length)];
+      },
+      handleDragStart(name, event) {
+        event.dataTransfer.setData('nameLabel', name.label);
+      },
+      handleDrop(event) {
+        const nameLabel = event.dataTransfer.getData('nameLabel');
+        const x = event.offsetX;
+        const y = event.offsetY;
+  
+        this.droppedNames.push({ label: nameLabel, x: x, y: y, imageUrl: 'path_to_image' });
+      },
+      removeName(index) {
+        this.names.splice(index, 1);
+      }
+    }
+  });
+  
+</script>
+
 
 
 <!--     Fonts and icons     -->
@@ -129,7 +176,7 @@
                 <!-- Annotations Button -->
                 <li class="nav-item d-flex align-items-center">
                   <a class="btn btn-outline-primary btn-sm mb-0 me-3" href="javascript:;" id="annotationsButton">
-                    Annotations <span class="badge bg-primary" id="annotationCount">3</span>
+                    Annotationen <span class="badge bg-primary" id="annotationCount">3</span>
                   </a>
                 </li>
         
@@ -177,24 +224,43 @@
                           draggable="true" 
                           @dragstart="handleDragStart(name, $event)" />
                         <div>{{ name.label }}</div>
-                        <button class="btn btn-danger btn-sm ms-auto" @click="removeName(index)">Delete</button>
+                        <button class="btn btn-danger btn-sm ms-auto" @click="removeName(index)">Löschen</button>
                       </div>
                     </div>
                   </div>
                   <div class="d-flex mb-4">
-                    <input v-model="newName" class="card mb-4" placeholder="New Name" />
-                    <button class="btn btn-success" @click="handleAddRandomName">Add Random Name</button>
+                    <input v-model="newName" class="card mb-4" placeholder="Neuer Name" />
+                    <button class="btn btn-success" @click="handleAddRandomName">Zufälligen Namen hinzufügen</button>
                   </div>
                   <div id="data-form">
-                    <input type="number" id="polypCount" class="card mb-4" placeholder="Number of Polyps">
+                    <input type="number" id="polypCount" class="card mb-4" placeholder="Anzahl der Polypen">
+                    
+                    <label>
+                      Geschlecht:<br>
+                      <input type="radio" id="genderFemale" name="gender" value="female">
+                      Weiblich
+                    </label><br/>
+                    
+                    <label>
+                      <input type="radio" id="genderMale" name="gender" value="male">
+                      Männlich
+                    </label><br/>
+                    
+                    <label>
+                      <input type="radio" id="genderDivers" name="gender" value="divers">
+                      Divers
+                    </label><br/>
+                  </div>
+                  
+
                     <textarea id="comments" class="form-control" placeholder="Comments"></textarea>
-                    <button id="saveData" class="btn btn-primary mt-2">Save Data</button>
+                    <button id="saveData" class="btn btn-primary mt-2">Speichern</button>
                  </div>
                  <div v-if="errorMessage" class="alert alert-danger mt-2">
                   {{ errorMessage }}
                   </div>
                  
-                  <div id="Next" class="btn btn-primary">Next</div>
+                  <div id="Next" class="btn btn-primary">Nächstes</div>
                 </div>
               </main>
 

@@ -7,3 +7,7 @@ This Service is intended for validation of the output from machine learning piel
 Primary Color: #596CFF
 Secondary Color: #FFFFFF
 
+## Communication Endpoints
+
+Communication takes place in this folder:
+

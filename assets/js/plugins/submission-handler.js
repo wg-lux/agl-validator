@@ -6,18 +6,31 @@ document.addEventListener("DOMContentLoaded", function() {
         const name = document.getElementById("name").value;
         const polypCount = document.getElementById("polypCount").value;
         const comments = document.getElementById("comments").value;
+
+        // Collect gender selection
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+
         this.errorMessage = '';
 
-        if (!this.newName.trim()) {
+        if (!name.trim()) {
           this.errorMessage = 'Name cannot be empty. Please enter a name.';
           return;  // Stop further execution
         }
+
+        // Collect the draggable names with their coordinates
+        const droppedNames = app.droppedNames.map(droppedName => ({
+            label: droppedName.label,
+            x: droppedName.x,
+            y: droppedName.y
+        }));
 
         // Create a data object to send to the backend
         const data = {
             name: name,
             polypCount: polypCount,
             comments: comments,
+            gender: gender,
+            droppedNames: droppedNames // Include the draggable names and their coordinates
         };
 
         // Send data to Django backend using Fetch API
