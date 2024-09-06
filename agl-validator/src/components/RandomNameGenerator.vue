@@ -14,17 +14,17 @@
     </div>
 
     <!-- Button to add random name -->
-    <button class="btn btn-success" @click="handleAddRandomName">Zufälligen Namen hinzufügen</button>
+    <button class="btn btn-success" @click="handleAddRandomName">Add Random Name</button>
 
     <!-- Error message display -->
     <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
 
     <!-- List of added names with delete buttons -->
-    <ul>
+    <ul class="name-list">
       <keep-alive>
-        <li v-for="(name, index) in randomNames" :key="index">
-          {{ name }}
-          <button class="btn btn-danger" @click="removeName(index)">Löschen</button>
+        <li v-for="(name, index) in randomNames" :key="index" class="name-item">
+          <span class="highlighted-name">{{ name }}</span>
+          <button class="btn btn-danger btn-sm" @click="removeName(index)">Delete</button>
         </li>
       </keep-alive>
     </ul>
@@ -52,19 +52,24 @@ export default {
         return text.split('\n').map(name => name.trim()).filter(name => name.length > 0);
       };
 
-      this.femaleFirstNames = await loadNameFile('/assets/names-dictionary/first_names_female_ascii.txt');
-      this.femaleLastNames = await loadNameFile('/assets/names-dictionary/last_names_female_ascii.txt');
-      this.maleFirstNames = await loadNameFile('/assets/names-dictionary/first_names_male_ascii.txt');
-      this.maleLastNames = await loadNameFile('/assets/names-dictionary/last_names_male_ascii.txt');
+      // Load female and male names
+      this.femaleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_female_ascii.txt');
+      this.femaleLastNames = await loadNameFile('./assets/names-dictionary/last_names_female_ascii.txt');
+      this.maleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_male_ascii.txt');
+      this.maleLastNames = await loadNameFile('./assets/names-dictionary/last_names_male_ascii.txt');
 
-      // Check if arrays are of equal length and handle error
-      if (
-        this.femaleFirstNames.length !== this.femaleLastNames.length ||
-        this.maleFirstNames.length !== this.maleLastNames.length
-      ) {
-        this.errorMessage = "First and last name arrays are not of the same length.";
+      // Validation: Ensure first names and last names arrays have equal lengths
+      if (this.femaleFirstNames.length !== this.femaleLastNames.length) {
+        this.errorMessage = "Female first names and last names are not of the same length.";
         return;
       }
+      if (this.maleFirstNames.length !== this.maleLastNames.length) {
+        this.errorMessage = "Male first names and last names are not of the same length.";
+        return;
+      }
+
+      // Clear any previous error message after successful load
+      this.errorMessage = "";
     },
     getRandomIndex(array) {
       // Return a random index from the array
@@ -75,7 +80,7 @@ export default {
         this.errorMessage = 'Please specify the gender before adding a random name.';
         return;
       }
-      
+
       let firstNameArray, lastNameArray;
 
       switch (gender) {
@@ -95,13 +100,7 @@ export default {
       // Clear the error message if everything is fine
       this.errorMessage = "";
 
-      // Ensure that arrays are not empty and have the same length
-      if (firstNameArray.length === 0 || lastNameArray.length === 0) {
-        this.errorMessage = "First or last name array is empty.";
-        return;
-      }
-
-      // Ensure that the index used for the first and last names is the same
+      // Ensure arrays are not empty and have the same length (validated earlier)
       const randomIndex = this.getRandomIndex(firstNameArray);
 
       // Return the first name and last name at the same index
@@ -121,6 +120,40 @@ export default {
     }
   },
   async created() {
-    await this.loadNames();
+    await this.loadNames(); // Load names when the component is created
   }
 };
+</script>
+
+<style scoped>
+.name-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.name-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.name-item:hover {
+  background-color: #e0f7fa; /* Light blue hover effect */
+}
+
+.highlighted-name {
+  font-weight: bold;
+  color: #007bff; /* Bootstrap primary color */
+}
+
+.btn-sm {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+</style>
