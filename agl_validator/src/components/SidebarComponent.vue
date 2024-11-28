@@ -5,7 +5,7 @@
       <div class="sidenav-header-inner text-center">
         <img src="@/assets/img/ukw.svg" class="navbar-brand-img h-100" alt="main_logo">
       </div>
-      <div class="ms-1 font-weight-bold text-white text-center">Arbeitsgruppe Dr. Thomas Lux</div>
+      <div class="ms-1 font-weight-bold text-white text-center">AG Lux</div>
 
     </a>
     
@@ -30,7 +30,7 @@
         </li>
 
         <li class="nav-item">
-          <router-link to="/validierung" class="nav-link" :class="{ active: $route.path === '/fallgenerator' }">
+          <router-link to="/fallgenerator" class="nav-link" :class="{ active: $route.path === '/fallgenerator' }">
             <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="material-icons opacity-10">check_circle</i>
             </div>
@@ -47,7 +47,7 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/profil" class="nav-link" :class="{ active: $route.path === '/ueber-uns' }">
+          <router-link to="/ueber-uns" class="nav-link" :class="{ active: $route.path === '/ueber-uns' }">
             <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="material-icons opacity-10">people</i>
             </div>
