@@ -1,12 +1,6 @@
 <template>
-  <div class="container-fluid py-4">
-
-    <div class="row">
-        <div class="col-12">       
-            <h1>Fallgeneratore</h1>
-            <p>Erstellen Sie hier Ihren eigenen Fall.</p>
-        </div>
-        </div>
+    <div class="about">
+      <h1>Userprofil</h1>
     </div>
   </template>
   
@@ -14,7 +8,7 @@
   
   
   export default {
-    name: 'Fallgenerator',
+    name: 'Profil',
     components: {
     },
   };

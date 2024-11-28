@@ -22,7 +22,18 @@ const router = createRouter({
       path: '/fallgenerator',
       name: 'Fallgenerator',
       component: () => import('../views/Fallgenerator.vue')
+    },
+    {
+      path: '/profil',
+      name: 'Profil',
+      component: () => import('../views/Profil.vue')
+    },
+    {
+      path: '/validierung',
+      name: 'Validierung',
+      component: () => import('../views/Validierung.vue')
     }
+
   ]
 });
 
