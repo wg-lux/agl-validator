@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../agl-home-django"
+		},
+		{
+			"path": "../agl-anonymizer-flake"
 		}
 	],
 	"settings": {}

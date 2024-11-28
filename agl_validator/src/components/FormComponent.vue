@@ -22,6 +22,9 @@
       };
     },
     methods: {
+      getImageUrl(name) {
+        return `https://path_to_image/${name}`;
+      },
       handleAddRandomName() {
         const selectedGender = this.gender;
         if (!selectedGender) {
@@ -29,7 +32,7 @@
           return;
         }
   
-        this.errorMessage = ''; // Clear any existing error message
+        this.errorMessage = '';
         const randomName = this.generateRandomName();
         this.names.push({ label: randomName, imageUrl: 'path_to_image' });
       },

@@ -1,5 +1,7 @@
 <template>
-  <body>
+  <AuthCheck>
+    <template #authenticated-content>
+      <body>
     <div class="g-sidenav-show bg-gray-200">
       <!-- Sidebar -->
       <aside
@@ -25,6 +27,13 @@
       </main>
     </div>
   </body>
+</template>
+<template #unauthenticated-content>
+  <div class="mt-4">
+        <p>Please login to access the application.</p>
+      </div>
+    </template>
+  </AuthCheck>
 </template>
 
 <script>
