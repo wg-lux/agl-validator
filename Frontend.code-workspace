@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../agl-home-django"
+		}
+	],
+	"settings": {}
+}

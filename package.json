@@ -36,7 +36,8 @@
   "bugs": {
     "url": "https://github.com/creativetimofficial/material-dashboard/issues"
   },
-  "devDependencies": {    
+  "devDependencies": {
+    "@vue/tsconfig": "^0.7.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^7.0.1",
     "gulp-clean": "^0.4.0",

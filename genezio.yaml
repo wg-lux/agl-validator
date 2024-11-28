@@ -1,7 +1,7 @@
 # The name of the project.
-name: material-dashboard
+name: agl-validator
 # The region where the project is deployed.
-region: us-east-1
+region: germany
 # The version of the Genezio YAML configuration to parse.
 yamlVersion: 2
 # Information about the frontend, including the path, language, and publish directory.
