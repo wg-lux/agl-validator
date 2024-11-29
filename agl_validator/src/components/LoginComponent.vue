@@ -25,7 +25,7 @@
                   <label class="form-check-label mb-0 ms-3" for="rememberMe">Erinnern</label>
                 </div>
                 <div class="text-center">
-                  <button type="button" class="btn bg-primary w-100 my-4 mb-2" @click="handleLogin">Einloggen</button>
+                  <button type="button" class="btn bg-primary w-100 my-4 mb-2 text-white" @click="handleLogin">Einloggen</button>
                 </div>
                 <div v-if="error" class="alert alert-danger text-white" role="alert">
                   {{ error }}

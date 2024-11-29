@@ -114,7 +114,7 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label class="form-control-label">Untersuchungstyp</label>
-                    <input type="text" class="form-control" value="Kolo" disabled>
+                    <input type="text" class="form-control" value="Koloskopie" disabled>
                   </div>
                 </div>
               </div>
@@ -225,9 +225,6 @@
   </script>
   
   <style scoped>
-  .card {
-    transition: all .2s ease-in-out;
-  }
   
   .form-control:focus {
     border-color: #596CFF;
