@@ -71,7 +71,7 @@
           <div class="col-12">
             <div class="card bg-light">
               <div class="card-body">
-                <h5 class="card-title">Zufallsname Generator</h5>
+                <h5 class="card-title">Namensgenerator</h5>
                 
                 <!-- Gender Selection -->
                 <div class="mb-3">
@@ -171,6 +171,102 @@ export default {
     }
   },
   methods: {
+    async loadNames() {
+      const loadNameFile = async (filePath) => {
+      const response = await fetch(filePath);
+      const text = await response.text();
+      const names = text.split(/\r\n|\n|\r/)
+        .map(name => name.trim())
+        .filter(name => name.length > 0);
+
+      console.log(`Loading from ${filePath}:`);
+      console.log('Raw text length:', text.length);
+      console.log('Number of lines:', names.length);
+
+      // Additional logging
+      const emptyLines = text.split(/\r\n|\n|\r/).filter(line => line.trim() === '').length;
+      console.log('Empty lines count:', emptyLines);
+      console.log('First few names:', names.slice(0, 1188));
+      console.log('Last few names:', names.slice(-5));
+
+      return names;
+    };
+
+
+      // Load female and male names
+      this.femaleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_female_ascii.txt');
+      this.femaleLastNames = await loadNameFile('./assets/names-dictionary/last_names_female_ascii.txt');
+      this.maleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_male_ascii.txt');
+      this.maleLastNames = await loadNameFile('./assets/names-dictionary/last_names_male_ascii.txt');
+
+      console.log('Final lengths:');
+      console.log('Female first names:', this.femaleFirstNames.length);
+      console.log('Female last names:', this.femaleLastNames.length);
+    
+      // Validation: Ensure first names and last names arrays have equal lengths
+      if (this.femaleFirstNames.length !== this.femaleLastNames.length) {
+        this.errorMessage = "Female first names and last names array are not of the same length.";
+        return;
+      }
+      if (this.maleFirstNames.length !== this.maleLastNames.length) {
+        this.errorMessage = "Male first names and last names are not of the same length.";
+        return;
+      }
+
+      // Clear any previous error message after successful load
+      this.errorMessage = "";
+    },
+    getRandomIndex(array) {
+      // Return a random index from the array
+      return Math.floor(Math.random() * array.length);
+    },
+    generateRandomName(gender) {
+      if (!this.selectedGender) {
+        this.errorMessage = 'Please specify the gender before adding a random name.';
+        return;
+      }
+
+      let firstNameArray, lastNameArray;
+
+      switch (gender) {
+        case 'male':
+          firstNameArray = this.maleFirstNames;
+          lastNameArray = this.maleLastNames;
+          break;
+        case 'female':
+          firstNameArray = this.femaleFirstNames;
+          lastNameArray = this.femaleLastNames;
+          break;
+        default:
+          this.errorMessage = 'Invalid gender selected.';
+          return;
+      }
+
+      // Clear the error message if everything is fine
+      this.errorMessage = "";
+
+      // Ensure arrays are not empty and have the same length (validated earlier)
+      const randomIndex = this.getRandomIndex(firstNameArray);
+
+      // Return the first name and last name at the same index
+      const firstNameSelected = firstNameArray[randomIndex];
+      const lastNameSelected = lastNameArray[randomIndex];
+
+      return `${firstNameSelected} ${lastNameSelected}`;
+    },
+    handleAddRandomName() {
+      const randomName = this.generateRandomName(this.selectedGender); // Pass the selected gender
+      if (randomName) {
+        this.randomNames.push(randomName); // Add to the array of random names if valid
+      }
+    },
+    removeName(index) {
+      this.randomNames.splice(index, 1); // Remove the name at the given index
+    }
+  },
+  async created() {
+    await this.loadNames(); // Load names when the component is created
+  },
     async handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -248,8 +344,8 @@ export default {
         this.errorMessage = `Failed to save: ${error.message}`;
       }
     }
-  }
-};
+  };
+
 </script>
 
 <style scoped>

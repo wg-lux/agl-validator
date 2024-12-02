@@ -20,10 +20,7 @@
                   <label class="form-label">Passwort</label>
                   <input type="password" class="form-control" v-model="password">
                 </div>
-                <div class="form-check form-switch d-flex align-items-center mb-3">
-                  <input class="form-check-input" type="checkbox" id="rememberMe" v-model="rememberMe">
-                  <label class="form-check-label mb-0 ms-3" for="rememberMe">Erinnern</label>
-                </div>
+
                 <div class="text-center">
                   <button type="button" class="btn bg-primary w-100 my-4 mb-2 text-white" @click="handleLogin">Einloggen</button>
                 </div>
@@ -36,6 +33,7 @@
         </div>
       </div>
     </div>
+    
   </template>
   
   <script>

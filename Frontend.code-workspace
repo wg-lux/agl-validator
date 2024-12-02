@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../agl-anonymizer-flake"
+		},
+		{
+			"path": "../endoreg-db"
 		}
 	],
 	"settings": {}
