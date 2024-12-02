@@ -47,10 +47,12 @@ export default {
   methods: {
     async loadNames() {
       const loadNameFile = async (filePath) => {
-        const response = await fetch(filePath);
-        const text = await response.text();
-        return text.split('\n').map(name => name.trim()).filter(name => name.length > 0);
-      };
+      const response = await fetch(filePath);
+      const text = await response.text();
+      // Ersetzen von \r\n durch \n und dann Splitten
+      return text.replace(/\r\n/g, '\n').split('\n').map(name => name.trim()).filter(name => name.length > 0);
+    };
+
 
       // Load female and male names
       this.femaleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_female_ascii.txt');

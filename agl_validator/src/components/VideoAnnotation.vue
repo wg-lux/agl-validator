@@ -7,33 +7,33 @@
       <div class="card-body">
         <!-- Video Upload Section -->
         <div class="form-group mb-4">
-          <label class="form-control-label">Select Video</label>
-          <input 
+            <label class="form-control-label">Select Video</label>
+            <input 
             type="file" 
             @change="handleFileSelect" 
             accept="video/*" 
             class="form-control"
-          >
-          
-          <select v-if="availableVideos.length" v-model="currentVideo" class="form-select mt-3">
+            >
+            
+            <select v-if="availableVideos.length" v-model="currentVideo" class="form-select mt-3">
             <option value="">Select a video...</option>
             <option v-for="video in availableVideos" :key="video.id" :value="video">
-              {{ video.center_name }} - {{ video.processor_name }}
+                {{ video.center_name }} - {{ video.processor_name }}
             </option>
-          </select>
+            </select>
         </div>
-  
+
         <!-- Video Player -->
         <div class="video-container">
-          <video 
+            <video 
             ref="videoRef"
             @timeupdate="handleTimeUpdate"
             controls
             class="w-100"
-          >
-            <source :src="currentVideoUrl" type="video/mp4">
-          </video>
+            :src="currentVideoUrl"
+            ></video>
         </div>
+
   
         <!-- Timeline -->
         <div class="timeline mt-4">
@@ -103,7 +103,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed, onMounted, watch } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import { v4 as uuidv4 } from 'uuid';
   import axios from 'axios';
   
@@ -125,7 +125,6 @@
   
   // Refs
   const videoRef = ref<HTMLVideoElement | null>(null);
-  const timelineRef = ref<HTMLElement | null>(null);
   const labels = ref<Label[]>([]);
   const currentTime = ref(0);
   const duration = ref(0);
@@ -157,34 +156,28 @@
   }
   
   async function handleFileSelect(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append('video', file);
-  formData.append('center_name', 'your_center');
-  formData.append('processor_name', 'your_processor');
-
-  try {
-    const response = await axios.post(`${API_BASE}/videos/upload/`, formData);
-    // Add console.log to check response
-    console.log('Upload response:', response.data);
-    
-    // Explicitly set the video URL
-    if (response.data.url) {
-      currentVideo.value = response.data;
-      // Force video element to update
-      if (videoRef.value) {
-        videoRef.value.src = response.data.url;
-        videoRef.value.load();
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+  
+    const formData = new FormData();
+    formData.append('video', file);
+    formData.append('center_name', 'your_center');
+    formData.append('processor_name', 'your_processor');
+  
+    try {
+      const response = await axios.post(`${API_BASE}/videos/upload/`, formData);
+      console.log('Upload response:', response.data);
+  
+      if (response.data.url) {
+        currentVideo.value = response.data;
+        // Video source will update automatically due to binding
+      } else {
+        console.error('No URL in response:', response.data);
       }
-    } else {
-      console.error('No URL in response:', response.data);
+    } catch (error) {
+      console.error('Upload failed:', error);
     }
-  } catch (error) {
-    console.error('Upload failed:', error);
   }
-}
   
   function handleTimeUpdate() {
     if (videoRef.value) {
@@ -194,7 +187,7 @@
   }
   
   function handleTimelineClick(event: MouseEvent) {
-    const timeline = timelineRef.value;
+    const timeline = event.currentTarget as HTMLElement;
     if (timeline && videoRef.value) {
       const rect = timeline.getBoundingClientRect();
       const clickPosition = event.clientX - rect.left;
@@ -250,6 +243,12 @@
     const ms = Math.floor((seconds % 1) * 1000);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
   }
+  function selectLabel(label: Label) {
+  // For example, set the current time to the label's start time
+    if (videoRef.value) {
+        videoRef.value.currentTime = label.startTime;
+    }
+    }
   
   async function saveAnnotations() {
     if (!currentVideo.value) return;
@@ -276,13 +275,8 @@
   onMounted(async () => {
     await fetchVideos();
   });
-  watch(() => currentVideo.value?.url, (newUrl) => {
-  if (newUrl && videoRef.value) {
-    videoRef.value.src = newUrl;
-    videoRef.value.load();
-  }
-});
   </script>
+  
   
   <style scoped>
   .timeline {

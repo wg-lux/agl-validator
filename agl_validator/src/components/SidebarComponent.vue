@@ -28,7 +28,23 @@
             <span class="nav-link-text ms-1">Annotationen Übersicht</span>
           </router-link>
         </li>
-
+        <li class="nav-item">
+          <router-link to="/video-annotation" class="nav-link" :class="{ active: $route.path === '/annotationen' }">
+            <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="material-icons opacity-10">note_add</i>
+            </div>
+            <span class="nav-link-text ms-1">Video Annotation</span>
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link to="/frame-annotation" class="nav-link" :class="{ active: $route.path === '/annotationen' }">
+            <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="material-icons opacity-10">note_add</i>
+            </div>
+            <span class="nav-link-text ms-1">Frame Annotation</span>
+          </router-link>
+        </li>
+<!--
         <li class="nav-item">
           <router-link to="/fallgenerator" class="nav-link" :class="{ active: $route.path === '/fallgenerator' }">
             <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -37,7 +53,7 @@
             <span class="nav-link-text ms-1">Fallgenerator</span>
           </router-link>
         </li>
-
+-->
         <li class="nav-item">
           <router-link to="/profil" class="nav-link" :class="{ active: $route.path === '/profil' }">
             <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center">

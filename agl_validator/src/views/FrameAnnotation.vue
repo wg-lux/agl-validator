@@ -7,18 +7,19 @@
       </div>
       <AnnotationComponent />
       <VideoAnnotation />
+      <RandomNameGenerator />
     </div>
   </div>
 </template>
 <script>
-import VideoAnnotation from '@/components/VideoAnnotation.vue';
 import AnnotationComponent from '../components/AnnotationComponent.vue';
+import RandomNameGenerator from '@/components/RandomNameGenerator.vue';
 
 export default {
   name: 'Annotationen',
   components: {
     AnnotationComponent,
-    VideoAnnotation,
+    RandomNameGenerator
   },
 };
 </script>

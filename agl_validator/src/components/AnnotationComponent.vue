@@ -24,17 +24,17 @@
         <div class="row mb-4">
           <div class="col-12">
             <div 
-              class="card mb-4" 
+              class="card mb-4 position-relative" 
               @drop="handleDrop" 
               @dragover.prevent
               ref="imageCard"
             >
               <!-- Background Image -->
               <img 
-                v-if="processedImageUrl" 
-                :src="processedImageUrl" 
+                v-if="displayedImageUrl" 
+                :src="displayedImageUrl" 
                 class="img-fluid" 
-                alt="Processed Image"
+                alt="Displayed Image"
               >
               
               <!-- Original Image Toggle -->
@@ -48,20 +48,21 @@
               </div>
 
               <!-- Dropped Names -->
-              <img
-                v-for="(droppedName, index) in randomNames"
+              <div 
+                v-for="(nameData, index) in droppedNames" 
                 :key="index"
-                :src="getNameImageUrl(droppedName)"
                 :style="{ 
-                  top: droppedName.y + 'px', 
-                  left: droppedName.x + 'px', 
-                  position: 'absolute' 
+                  top: nameData.y + 'px', 
+                  left: nameData.x + 'px', 
+                  position: 'absolute',
+                  cursor: 'move'
                 }"
                 class="dropped-name"
-                :alt="droppedName"
                 draggable="true"
-                @dragstart="handleDragStart(droppedName, $event)"
-              />
+                @dragstart="handleDragStart(nameData, $event)"
+              >
+                {{ nameData.displayText }}
+              </div>
             </div>
           </div>
         </div>
@@ -88,30 +89,91 @@
                   </div>
                 </div>
 
-                <button 
-                  @click="handleAddRandomName" 
-                  class="btn btn-info"
-                  :disabled="!selectedGender"
-                >
-                  Zufallsname generieren
-                </button>
-
-                <!-- Generated Names List -->
-                <div class="name-list mt-3">
-                  <div
-                    v-for="(name, index) in randomNames"
-                    :key="index"
-                    class="name-item card p-3 d-flex flex-row align-items-center"
-                    draggable="true"
-                    @dragstart="handleDragStart(name, $event)"
+                <!-- Name Generation Buttons -->
+                <div class="mb-3">
+                  <button 
+                    @click="handleAddRandomFirstName" 
+                    class="btn btn-info me-2"
+                    :disabled="!selectedGender"
                   >
-                    <div>{{ name }}</div>
-                    <button 
-                      class="btn btn-danger btn-sm ms-auto" 
-                      @click="removeName(index)"
+                    Vorname generieren
+                  </button>
+                  <button 
+                    @click="handleAddRandomLastName" 
+                    class="btn btn-info me-2"
+                    :disabled="!selectedGender"
+                  >
+                    Nachname generieren
+                  </button>
+                  <button 
+                    @click="handleAddRandomFullName" 
+                    class="btn btn-info"
+                    :disabled="!selectedGender"
+                  >
+                    Vollständigen Namen generieren
+                  </button>
+                </div>
+
+                <!-- Generated Names Lists -->
+                <div class="name-lists mt-4">
+                  <!-- First Names -->
+                  <div class="name-list mb-3">
+                    <h6>Vornamen</h6>
+                    <div
+                      v-for="(name, index) in randomFirstNames"
+                      :key="'first-' + index"
+                      class="name-item card p-3 d-flex flex-row align-items-center mb-2"
+                      draggable="true"
+                      @dragstart="handleDragStart({ type: 'firstName', name }, $event)"
                     >
-                      Löschen
-                    </button>
+                      <div>{{ name }}</div>
+                      <button 
+                        class="btn btn-danger btn-sm ms-auto" 
+                        @click="removeName('firstName', index)"
+                      >
+                        Löschen
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Last Names -->
+                  <div class="name-list mb-3">
+                    <h6>Nachnamen</h6>
+                    <div
+                      v-for="(name, index) in randomLastNames"
+                      :key="'last-' + index"
+                      class="name-item card p-3 d-flex flex-row align-items-center mb-2"
+                      draggable="true"
+                      @dragstart="handleDragStart({ type: 'lastName', name }, $event)"
+                    >
+                      <div>{{ name }}</div>
+                      <button 
+                        class="btn btn-danger btn-sm ms-auto" 
+                        @click="removeName('lastName', index)"
+                      >
+                        Löschen
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Full Names -->
+                  <div class="name-list">
+                    <h6>Vollständige Namen</h6>
+                    <div
+                      v-for="(name, index) in randomFullNames"
+                      :key="'full-' + index"
+                      class="name-item card p-3 d-flex flex-row align-items-center mb-2"
+                      draggable="true"
+                      @dragstart="handleDragStart({ type: 'fullName', name }, $event)"
+                    >
+                      <div>{{ name }}</div>
+                      <button 
+                        class="btn btn-danger btn-sm ms-auto" 
+                        @click="removeName('fullName', index)"
+                      >
+                        Löschen
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -149,13 +211,15 @@ export default {
   data() {
     return {
       selectedGender: '',
-      randomNames: [],
+      randomFirstNames: [],
+      randomLastNames: [],
+      randomFullNames: [],
+      droppedNames: [],
       errorMessage: '',
       uploadedFile: null,
       processedImageUrl: null,
       originalImageUrl: null,
       showOriginal: false,
-      namePositions: new Map(),
       femaleFirstNames: [],
       femaleLastNames: [],
       maleFirstNames: [],
@@ -164,7 +228,7 @@ export default {
   },
   computed: {
     canSubmit() {
-      return this.processedImageUrl && this.randomNames.length > 0;
+      return this.processedImageUrl && this.droppedNames.length > 0;
     },
     displayedImageUrl() {
       return this.showOriginal ? this.originalImageUrl : this.processedImageUrl;
@@ -173,100 +237,116 @@ export default {
   methods: {
     async loadNames() {
       const loadNameFile = async (filePath) => {
-      const response = await fetch(filePath);
-      const text = await response.text();
-      const names = text.split(/\r\n|\n|\r/)
-        .map(name => name.trim())
-        .filter(name => name.length > 0);
+        try {
+          const response = await fetch(filePath);
+          const text = await response.text();
+          return text.replace(/\r\n/g, '\n')
+            .split('\n')
+            .map(name => name.trim())
+            .filter(name => name.length > 0);
+        } catch (error) {
+          console.error(`Error loading names from ${filePath}:`, error);
+          throw error;
+        }
+      };
 
-      console.log(`Loading from ${filePath}:`);
-      console.log('Raw text length:', text.length);
-      console.log('Number of lines:', names.length);
+      try {
+        // Load all name files
+        this.femaleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_female_ascii.txt');
+        this.femaleLastNames = await loadNameFile('./assets/names-dictionary/last_names_female_ascii.txt');
+        this.maleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_male_ascii.txt');
+        this.maleLastNames = await loadNameFile('./assets/names-dictionary/last_names_male_ascii.txt');
 
-      // Additional logging
-      const emptyLines = text.split(/\r\n|\n|\r/).filter(line => line.trim() === '').length;
-      console.log('Empty lines count:', emptyLines);
-      console.log('First few names:', names.slice(0, 1188));
-      console.log('Last few names:', names.slice(-5));
+        // Validate loaded names
+        if (!this.femaleFirstNames.length || !this.femaleLastNames.length || 
+            !this.maleFirstNames.length || !this.maleLastNames.length) {
+          throw new Error("One or more name lists are empty");
+        }
 
-      return names;
-    };
-
-
-      // Load female and male names
-      this.femaleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_female_ascii.txt');
-      this.femaleLastNames = await loadNameFile('./assets/names-dictionary/last_names_female_ascii.txt');
-      this.maleFirstNames = await loadNameFile('./assets/names-dictionary/first_names_male_ascii.txt');
-      this.maleLastNames = await loadNameFile('./assets/names-dictionary/last_names_male_ascii.txt');
-
-      console.log('Final lengths:');
-      console.log('Female first names:', this.femaleFirstNames.length);
-      console.log('Female last names:', this.femaleLastNames.length);
-    
-      // Validation: Ensure first names and last names arrays have equal lengths
-      if (this.femaleFirstNames.length !== this.femaleLastNames.length) {
-        this.errorMessage = "Female first names and last names array are not of the same length.";
-        return;
+        this.errorMessage = "";
+      } catch (error) {
+        this.errorMessage = `Failed to load names: ${error.message}`;
       }
-      if (this.maleFirstNames.length !== this.maleLastNames.length) {
-        this.errorMessage = "Male first names and last names are not of the same length.";
-        return;
-      }
+    },
 
-      // Clear any previous error message after successful load
-      this.errorMessage = "";
+    getRandomName(array) {
+      return array[Math.floor(Math.random() * array.length)];
     },
-    getRandomIndex(array) {
-      // Return a random index from the array
-      return Math.floor(Math.random() * array.length);
-    },
-    generateRandomName(gender) {
+
+    handleAddRandomFirstName() {
       if (!this.selectedGender) {
-        this.errorMessage = 'Please specify the gender before adding a random name.';
+        this.errorMessage = 'Bitte wählen Sie ein Geschlecht aus.';
         return;
       }
 
-      let firstNameArray, lastNameArray;
+      const nameArray = this.selectedGender === 'male' ? this.maleFirstNames : this.femaleFirstNames;
+      const randomName = this.getRandomName(nameArray);
+      this.randomFirstNames.push(randomName);
+    },
 
-      switch (gender) {
-        case 'male':
-          firstNameArray = this.maleFirstNames;
-          lastNameArray = this.maleLastNames;
-          break;
-        case 'female':
-          firstNameArray = this.femaleFirstNames;
-          lastNameArray = this.femaleLastNames;
-          break;
-        default:
-          this.errorMessage = 'Invalid gender selected.';
-          return;
+    handleAddRandomLastName() {
+      if (!this.selectedGender) {
+        this.errorMessage = 'Bitte wählen Sie ein Geschlecht aus.';
+        return;
       }
 
-      // Clear the error message if everything is fine
-      this.errorMessage = "";
-
-      // Ensure arrays are not empty and have the same length (validated earlier)
-      const randomIndex = this.getRandomIndex(firstNameArray);
-
-      // Return the first name and last name at the same index
-      const firstNameSelected = firstNameArray[randomIndex];
-      const lastNameSelected = lastNameArray[randomIndex];
-
-      return `${firstNameSelected} ${lastNameSelected}`;
+      const nameArray = this.selectedGender === 'male' ? this.maleLastNames : this.femaleLastNames;
+      const randomName = this.getRandomName(nameArray);
+      this.randomLastNames.push(randomName);
     },
-    handleAddRandomName() {
-      const randomName = this.generateRandomName(this.selectedGender); // Pass the selected gender
-      if (randomName) {
-        this.randomNames.push(randomName); // Add to the array of random names if valid
+
+    handleAddRandomFullName() {
+      if (!this.selectedGender) {
+        this.errorMessage = 'Bitte wählen Sie ein Geschlecht aus.';
+        return;
+      }
+
+      const firstNames = this.selectedGender === 'male' ? this.maleFirstNames : this.femaleFirstNames;
+      const lastNames = this.selectedGender === 'male' ? this.maleLastNames : this.femaleLastNames;
+      
+      const firstName = this.getRandomName(firstNames);
+      const lastName = this.getRandomName(lastNames);
+      
+      this.randomFullNames.push(`${firstName} ${lastName}`);
+    },
+
+    removeName(type, index) {
+      switch (type) {
+        case 'firstName':
+          this.randomFirstNames.splice(index, 1);
+          break;
+        case 'lastName':
+          this.randomLastNames.splice(index, 1);
+          break;
+        case 'fullName':
+          this.randomFullNames.splice(index, 1);
+          break;
       }
     },
-    removeName(index) {
-      this.randomNames.splice(index, 1); // Remove the name at the given index
-    }
-  },
-  async created() {
-    await this.loadNames(); // Load names when the component is created
-  },
+
+    handleDragStart(nameData, event) {
+      event.dataTransfer.setData('text/plain', JSON.stringify(nameData));
+    },
+
+    handleDrop(event) {
+      const rect = this.$refs.imageCard.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      const nameData = JSON.parse(event.dataTransfer.getData('text/plain'));
+      
+      this.droppedNames.push({
+        ...nameData,
+        x,
+        y,
+        displayText: nameData.name
+      });
+    },
+
+    toggleImage() {
+      this.showOriginal = !this.showOriginal;
+    },
+
     async handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -286,32 +366,18 @@ export default {
         const data = await response.json();
         this.processedImageUrl = data.processed_file_url;
         this.originalImageUrl = data.original_image_url;
+        this.uploadedFile = file;
         
-        // If gender was detected, pre-select it
         if (data.gender_pars) {
           this.selectedGender = data.gender_pars.toLowerCase();
         }
+
+        this.errorMessage = '';
       } catch (error) {
-        this.errorMessage = `Upload gescheitert, die Anfrage an die API hat folgenden Error ausgeworfen: ${error.message}`;
+        this.errorMessage = `Upload failed: ${error.message}`;
       }
     },
 
-    handleDragStart(name, event) {
-      event.dataTransfer.setData('text/plain', name);
-    },
-
-    handleDrop(event) {
-      const name = event.dataTransfer.getData('text/plain');
-      const rect = this.$refs.imageCard.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      
-      this.namePositions.set(name, { x, y });
-    },
-
-    toggleImage() {
-      this.showOriginal = !this.showOriginal;
-    },
     async saveAnnotation() {
       if (!this.canSubmit) return;
 
@@ -319,10 +385,11 @@ export default {
         image_name: this.uploadedFile?.name,
         original_image_url: this.originalImageUrl,
         processed_image_url: this.processedImageUrl,
-        dropped_names: Array.from(this.namePositions.entries()).map(([name, pos]) => ({
+        dropped_names: this.droppedNames.map(({ name, type, x, y }) => ({
           name,
-          x: pos.x,
-          y: pos.y
+          type,
+          x,
+          y
         }))
       };
 
@@ -343,19 +410,40 @@ export default {
       } catch (error) {
         this.errorMessage = `Failed to save: ${error.message}`;
       }
-    }
-  };
+    },
 
+    getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    },
+
+    resetForm() {
+      this.randomFirstNames = [];
+      this.randomLastNames = [];
+      this.randomFullNames = [];
+      this.droppedNames = [];
+      this.uploadedFile = null;
+      this.processedImageUrl = null;
+      this.originalImageUrl = null;
+      this.showOriginal = false;
+      this.errorMessage = '';
+    }
+  },
+  async created() {
+    await this.loadNames();
+  }
+};
 </script>
 
 <style scoped>
-/* ... previous styles ... */
-
 .dropped-name {
   position: absolute;
-  max-width: 50px;
-  max-height: 50px;
-  border-radius: 50%;
+  font-weight: bold;
+  color: #000;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 2px 4px;
+  border-radius: 3px;
   cursor: move;
   z-index: 100;
 }
@@ -370,5 +458,21 @@ export default {
 .image-container.dragover {
   border-color: #007bff;
   background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Name List Styles */
+.name-list {
+  margin-top: 1rem;
+}
+
+.name-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.name-item div {
+  font-weight: bold;
 }
 </style>
