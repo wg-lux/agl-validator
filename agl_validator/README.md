@@ -84,6 +84,24 @@ Copyyour_django_project/
     ├── package.json
     └── vite.config.js         # or vue.config.js if using Vue CLI
 
+# Serving static files:
+
+cp -r dist/* ../../agl-home-django/frontend/static/frontend/
+
+Setting up the Django settings for static file deployment:
+
+### settings.py
+
+import os
+
+#### Add static files configuration
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "frontend/static"),
+]
+
+## Configuring Django as the development server
+
 Initialize a Vue project in the frontend directory:
 
 bashCopycd your_django_project
@@ -91,7 +109,7 @@ mkdir frontend
 cd frontend
 npm init vue@latest  # Or your preferred Vue setup method
 
-Configure your Vue build to output to Django's static files. Add this to your vite.config.js:
+Configure your Vue build to output to Django's static files. Add this to your vite.config.ts:
 
 javascriptCopyimport { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -113,7 +131,7 @@ export default defineConfig({
 })
 
 In your Django template (e.g., base.html):
-
+```html
 htmlCopy{% load static %}
 <!DOCTYPE html>
 <html>
@@ -125,7 +143,7 @@ htmlCopy{% load static %}
     <script type="module" src="{% static 'your_app/js/main.js' %}"></script>
 </body>
 </html>
-
+```
 Update Django settings to handle static files:
 
 pythonCopy# settings.py

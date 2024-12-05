@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async checkAuth() {
       // Development bypass
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.NODE_ENV === 'development') {
         this.isAuthenticated = true
         this.user = {
           username: 'DevUser',
@@ -54,7 +54,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     login() {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.NODE_ENV === 'development') {
         this.checkAuth() // This will set the dev user
         return
       }
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.NODE_ENV === 'development') {
         this.isAuthenticated = false
         this.user = null
         return

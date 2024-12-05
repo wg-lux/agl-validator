@@ -48,7 +48,8 @@
     "gulp-sourcemaps": "^2.6.5",
     "http-server": "^14.1.1",
     "sass": "^1.81.0",
-    "sass-loader": "^16.0.3"
+    "sass-loader": "^16.0.3",
+    "typescript": "^5.7.2"
   },
   "homepage": "http://creative-tim.com/product/material-dashboard"
 }
